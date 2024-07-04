@@ -1,0 +1,40 @@
+trigger:
+- uat
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Build
+  jobs:
+  - job: Build
+    steps:
+    - checkout: self
+      displayName: 'Checkout Source Code'
+      clean: false  # To speed up by not cleaning the repo
+
+    - task: Cache@2
+      inputs:
+        key: 'wordpress-$(Build.SourceBranchName)-$(Build.SourceVersion)'
+        path: '$(Build.SourcesDirectory)'
+      displayName: 'Cache Source Directory'
+
+    - script: |
+        mkdir -p $(Build.ArtifactStagingDirectory)/wordpress
+        rsync -av --delete $(Build.SourcesDirectory)/ $(Build.ArtifactStagingDirectory)/wordpress/
+      displayName: 'Sync WordPress Files to Staging Directory'
+
+    - task: ArchiveFiles@2
+      inputs:
+        rootFolderOrFile: '$(Build.ArtifactStagingDirectory)/wordpress'
+        includeRootFolder: false
+        archiveType: 'zip'
+        archiveFile: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
+      displayName: 'Compress WordPress Files'
+
+    - task: PublishBuildArtifacts@1
+      inputs:
+        PathtoPublish: '$(Build.ArtifactStagingDirectory)/wordpress.zip'
+        ArtifactName: 'wordpress'
+      displayName: 'Publish Compressed WordPress Artifact'
