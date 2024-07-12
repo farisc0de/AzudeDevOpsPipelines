@@ -18,7 +18,7 @@
             "owner": {},
             "variables": {
                 "exclude": {
-                    "value": "{wp-config.php,wp-content/uploads/,wp-content/uploads/*} "
+                    "value": "{wp-config.php,wp-content/uploads/,wp-content/uploads/*,.htaccess}"
                 },
                 "groupname": {
                     "value": "groupname"
